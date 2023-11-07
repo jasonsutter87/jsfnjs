@@ -65,6 +65,7 @@ export default function Page({ page }: any) {
                 <title>{page?.data.title}  + Jason</title>
                 <meta name='description' content={page?.data.descripton} />
                 <link rel="stylesheet" href="" />
+
             </Head>
             <main>
                 <div style={{ padding: 50, textAlign: 'center' }}>

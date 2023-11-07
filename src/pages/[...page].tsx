@@ -62,8 +62,9 @@ export default function Page({ page }: any) {
         <>
             <Head>
                 {/* Add any relevant SEO metadata or open graph tags here */}
-                <title>{page?.data.title}</title>
+                <title>{page?.data.title}  + Jason</title>
                 <meta name='description' content={page?.data.descripton} />
+                <link rel="stylesheet" href="" />
             </Head>
             <main>
                 <div style={{ padding: 50, textAlign: 'center' }}>

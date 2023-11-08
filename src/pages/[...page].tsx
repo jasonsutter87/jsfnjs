@@ -1,87 +1,86 @@
-import { useRouter } from 'next/router';
-import DefaultErrorPage from 'next/error';
-import Head from 'next/head';
-import HeadComponent from '@/components/shared/HeadComponent';
-import { builder, BuilderComponent, useIsPreviewing } from '@builder.io/react';
-import {
-    fetchAllBuilderPages,
-    fetchBuilderPageInfo,
-} from '@/utils/common-utils';
+// pages/[...page].tsx
+import React from "react";
+import { useRouter } from "next/router";
+import { BuilderComponent, builder, useIsPreviewing } from "@builder.io/react";
+import { BuilderContent } from "@builder.io/sdk";
+import DefaultErrorPage from "next/error";
+import Head from "next/head";
+import { GetStaticProps } from "next";
 import config from '@/config/config';
+import HeadComponent from "@/components/shared/HeadComponent";
+import FooterComponent from "@/components/shared/FooterComponent";
 
+// Replace with your Public API Key
 builder.init(config.BUILDER_IO_API_KEY);
 
-export async function getStaticProps({ params }: any) {
-    /*
-    Fetch the first page from Builder that matches the current URL.
-    The `userAttributes` field is used for targeting content,
-    learn more here: https://www.builder.io/c/docs/targeting-with-builder
-  */
-    const page = await fetchBuilderPageInfo(builder, params);
 
-    return {
-        props: {
-            page: page || null,
-        },
-        revalidate: 5,
-    };
-}
+// Define a function that fetches the Builder
+// content for a given page
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  // Fetch the builder content for the given page
+  const page = await builder
+    .get("page", {
+      userAttributes: {
+        urlPath: "/" + ((params?.page as string[])?.join("/") || ""),
+      },
+    })
+    .toPromise();
 
+  // Return the page content as props
+  return {
+    props: {
+      page: page || null,
+    },
+    // Revalidate the content every 5 seconds
+    revalidate: 5,
+  };
+};
+
+// Define a function that generates the
+// static paths for all pages in Builder
 export async function getStaticPaths() {
-    /*
-    Fetch all published pages for the current model.
-    Using the `fields` option will limit the size of the response
-    and only return the `data.url` field from the matching pages.
-  */
-    const pages = await fetchAllBuilderPages(builder);
-    return {
-        paths: pages.map((page) => `${page.data?.url}`),
-        fallback: true,
-    };
+  // Get a list of all pages in Builder
+  const pages = await builder.getAll("page", {
+    // We only need the URL field
+    fields: "data.url",
+    options: { noTargeting: true },
+  });
+
+  // Generate the static paths for all pages in Builder
+  return {
+    paths: pages.map((page) => `${page.data?.url}`).filter(url => url !== '/'),
+    fallback: 'blocking',
+  };
 }
 
-export default function Page({ page }: any) {
-    const router = useRouter();
-    /*
-    This flag indicates if you are viewing the page in the Builder editor.
-  */
-    const isPreviewing = useIsPreviewing();
+// Define the Page component
+export default function Page({ page }: { page: BuilderContent | null }) {
+  const router = useRouter();
+  const isPreviewing = useIsPreviewing();
 
-    if (router.isFallback) {
-        return <h1>Loading...</h1>;
-    }
+  // If the page content is not available
+  // and not in preview mode, show a 404 error page
+  if (!page && !isPreviewing) {
+    return <DefaultErrorPage statusCode={404} />;
+  }
 
-    /*
-    Add your error page here. This will happen if there are no matching
-    content entries published in Builder.
-  */
-    if (!page && !isPreviewing) {
-        return <DefaultErrorPage statusCode={404} />;
-    }
+  // If the page content is available, render
+  // the BuilderComponent with the page content
+  return (
+    <>
+      <Head>
+        {/* Add any relevant SEO metadata or open graph tags here */}
+        <title>{page?.data.title}  |  {page?.data.siteTitle}</title>
+        <meta name='description' content={page?.data.description} />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://justsafefood.com/src/css/site.css" />
+    </Head>
+    <header>
+          <HeadComponent />
+    </header>
+    <BuilderComponent model='page' content={page} />
 
-
-    
-    return (
-        <>
-            <Head>
-                {/* Add any relevant SEO metadata or open graph tags here */}
-                <title>{page?.data.title}  |  {page?.data.siteTitle}</title>
-                <meta name='description' content={page?.data.description} />
-            </Head>
-            <main>
-                <div style={{ padding: 50, textAlign: 'center' }}>
-                    {/* Put your header or main layout here */}
-                    <HeadComponent />
-                </div>
-
-                {/* Render the Builder page */}
-                <BuilderComponent model='page' content={page} />
-
-                <div style={{ padding: 50, textAlign: 'center' }}>
-                    {/* Put your footer or main layout here */}
-                    Your footer
-                </div>
-            </main>
-        </>
-    );
+    <FooterComponent />
+    </>
+  );
 }

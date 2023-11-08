@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import DefaultErrorPage from 'next/error';
 import Head from 'next/head';
+import HeadComponent from '@/components/shared/HeadComponent';
 import { builder, BuilderComponent, useIsPreviewing } from '@builder.io/react';
 import {
     fetchAllBuilderPages,
@@ -58,19 +59,19 @@ export default function Page({ page }: any) {
         return <DefaultErrorPage statusCode={404} />;
     }
 
+
+    
     return (
         <>
             <Head>
                 {/* Add any relevant SEO metadata or open graph tags here */}
-                <title>{page?.data.title}  + Jason</title>
-                <meta name='description' content={page?.data.descripton} />
-                <link rel="stylesheet" href="" />
-
+                <title>{page?.data.title}  |  {page?.data.siteTitle}</title>
+                <meta name='description' content={page?.data.description} />
             </Head>
             <main>
                 <div style={{ padding: 50, textAlign: 'center' }}>
                     {/* Put your header or main layout here */}
-                    Your header
+                    <HeadComponent />
                 </div>
 
                 {/* Render the Builder page */}

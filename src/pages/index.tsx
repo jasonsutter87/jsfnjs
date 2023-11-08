@@ -1,6 +1,7 @@
 import config from '@/config/config';
 import { fetchBuilderPageInfo } from '@/utils/common-utils';
 import { builder, BuilderComponent, useIsPreviewing } from '@builder.io/react';
+import HeadComponent from '@/components/shared/HeadComponent';
 import DefaultErrorPage from 'next/error';
 
 builder.init(config.BUILDER_IO_API_KEY);
@@ -26,5 +27,10 @@ export default function HomePage({ page }: any) {
     if (!page && !isPreviewing) {
         return <DefaultErrorPage statusCode={404} />;
     }
-    return <BuilderComponent model='page' content={page} />;
+    return (
+        <div>
+                 <HeadComponent />
+                <BuilderComponent model='page' content={page} />
+        </div>
+    )
 }

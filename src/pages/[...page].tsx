@@ -69,9 +69,9 @@ export default function Page({ page }: { page: BuilderContent | null }) {
   return (
     <>
       <Head>
-        {/* Add any relevant SEO metadata or open graph tags here */}
-        <title>{page?.data.title}  |  {page?.data.siteTitle}</title>
-        <meta name='description' content={page?.data.description} />
+     
+        <title>{page?.data?.title || 'Default Title'} | {page?.data?.siteTitle || 'Default Site Title'}</title>
+        <meta name='description' content={page?.data?.description || 'Default description'} />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://justsafefood.com/src/css/site.css" />
     </Head>

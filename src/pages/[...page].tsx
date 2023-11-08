@@ -78,7 +78,9 @@ export default function Page({ page }: { page: BuilderContent | null }) {
     <header>
           <HeadComponent />
     </header>
-    <BuilderComponent model='page' content={page} />
+    <BuilderComponent model='page' content={page!} />
+
+
 
     <FooterComponent />
     </>
